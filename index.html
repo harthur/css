@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <script src="rework-css.js"></script>
+  <script>
+var css = "div{color:blue} span { background-color: rgb(0,0,0);}";
+
+var ast = rework.parse(css);
+console.log("ast", ast);
+
+var result = rework.stringify(ast);
+
+console.log("code", result);
+  </script>
+</head>
+<body>
+
+</body>
+</html>
