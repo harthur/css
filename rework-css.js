@@ -1258,13 +1258,13 @@ exports.applySourceMaps = function() {
     var content = this.files[file];
     this.map.setSourceContent(file, content);
 
-    var originalMap = sourceMapResolve.resolveSync(
-      content, file, fs.readFileSync);
-    if (originalMap) {
-      var map = new SourceMapConsumer(originalMap.map);
-      var relativeTo = originalMap.sourcesRelativeTo;
-      this.map.applySourceMap(map, file, urix(path.dirname(relativeTo)));
-    }
+    // var originalMap = sourceMapResolve.resolveSync(
+    //   content, file, fs.readFileSync);
+    // if (originalMap) {
+    //   var map = new SourceMapConsumer(originalMap.map);
+    //   var relativeTo = originalMap.sourcesRelativeTo;
+    //   this.map.applySourceMap(map, file, urix(path.dirname(relativeTo)));
+    // }
   }, this);
 };
 
