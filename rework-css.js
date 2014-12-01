@@ -662,6 +662,7 @@ Compiler.prototype.mapVisit = function(nodes, delim){
  */
 
 var Base = require('./compiler');
+var inherits = require('inherits');
 
 /**
  * Expose compiler.
@@ -681,7 +682,7 @@ function Compiler(options) {
  * Inherit from `Base.prototype`.
  */
 
-Compiler.prototype.__proto__ = Base.prototype;
+inherits(Compiler, Base);
 
 /**
  * Compile `node`.
@@ -855,13 +856,14 @@ Compiler.prototype.declaration = function(node){
 };
 
 
-},{"./compiler":4}],6:[function(require,module,exports){
+},{"./compiler":4,"inherits":12}],6:[function(require,module,exports){
 
 /**
  * Module dependencies.
  */
 
 var Base = require('./compiler');
+var inherits = require('inherits');
 
 /**
  * Expose compiler.
@@ -883,7 +885,7 @@ function Compiler(options) {
  * Inherit from `Base.prototype`.
  */
 
-Compiler.prototype.__proto__ = Base.prototype;
+inherits(Compiler, Base);
 
 /**
  * Compile `node`.
@@ -1110,7 +1112,7 @@ Compiler.prototype.indent = function(level) {
   return Array(this.level).join(this.indentation || '  ');
 };
 
-},{"./compiler":4}],7:[function(require,module,exports){
+},{"./compiler":4,"inherits":12}],7:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -1147,7 +1149,9 @@ module.exports = function(node, options){
 
     var code = compiler.compile(node);
     compiler.applySourceMaps();
-    return { code: code, map: compiler.map.toJSON() };
+
+    var sourcemap = compiler.map;
+    return { code: code, sourcemap: sourcemap, map: sourcemap.toJSON() };
   }
 
   var code = compiler.compile(node);
@@ -1258,13 +1262,15 @@ exports.applySourceMaps = function() {
     var content = this.files[file];
     this.map.setSourceContent(file, content);
 
-    // var originalMap = sourceMapResolve.resolveSync(
-    //   content, file, fs.readFileSync);
-    // if (originalMap) {
-    //   var map = new SourceMapConsumer(originalMap.map);
-    //   var relativeTo = originalMap.sourcesRelativeTo;
-    //   this.map.applySourceMap(map, file, urix(path.dirname(relativeTo)));
-    // }
+    if (this.options.inputSourcemaps !== false) {
+      var originalMap = sourceMapResolve.resolveSync(
+        content, file, fs.readFileSync);
+      if (originalMap) {
+        var map = new SourceMapConsumer(originalMap.map);
+        var relativeTo = originalMap.sourcesRelativeTo;
+        this.map.applySourceMap(map, file, urix(path.dirname(relativeTo)));
+      }
+    }
   }, this);
 };
 
@@ -1280,7 +1286,7 @@ exports.comment = function(node) {
     return this._comment(node);
 };
 
-},{"fs":9,"path":10,"source-map":15,"source-map-resolve":14,"urix":25}],9:[function(require,module,exports){
+},{"fs":9,"path":10,"source-map":16,"source-map-resolve":15,"urix":26}],9:[function(require,module,exports){
 
 },{}],10:[function(require,module,exports){
 (function (process){
@@ -1576,6 +1582,31 @@ process.chdir = function (dir) {
 };
 
 },{}],12:[function(require,module,exports){
+if (typeof Object.create === 'function') {
+  // implementation from standard node.js 'util' module
+  module.exports = function inherits(ctor, superCtor) {
+    ctor.super_ = superCtor
+    ctor.prototype = Object.create(superCtor.prototype, {
+      constructor: {
+        value: ctor,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+  };
+} else {
+  // old school shim for old browsers
+  module.exports = function inherits(ctor, superCtor) {
+    ctor.super_ = superCtor
+    var TempCtor = function () {}
+    TempCtor.prototype = superCtor.prototype
+    ctor.prototype = new TempCtor()
+    ctor.prototype.constructor = ctor
+  }
+}
+
+},{}],13:[function(require,module,exports){
 // Copyright 2014 Simon Lydell
 // X11 (“MIT”) Licensed. (See LICENSE.)
 
@@ -1624,7 +1655,7 @@ void (function(root, factory) {
 
 }));
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 // Copyright 2014 Simon Lydell
 
 void (function(root, factory) {
@@ -1704,7 +1735,7 @@ void (function(root, factory) {
 
 }));
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 // Copyright 2014 Simon Lydell
 // X11 (“MIT”) Licensed. (See LICENSE.)
 
@@ -1942,7 +1973,7 @@ void (function(root, factory) {
 
 }));
 
-},{"resolve-url":12,"source-map-url":13}],15:[function(require,module,exports){
+},{"resolve-url":13,"source-map-url":14}],16:[function(require,module,exports){
 /*
  * Copyright 2009-2011 Mozilla Foundation and contributors
  * Licensed under the New BSD license. See LICENSE.txt or:
@@ -1952,7 +1983,7 @@ exports.SourceMapGenerator = require('./source-map/source-map-generator').Source
 exports.SourceMapConsumer = require('./source-map/source-map-consumer').SourceMapConsumer;
 exports.SourceNode = require('./source-map/source-node').SourceNode;
 
-},{"./source-map/source-map-consumer":20,"./source-map/source-map-generator":21,"./source-map/source-node":22}],16:[function(require,module,exports){
+},{"./source-map/source-map-consumer":21,"./source-map/source-map-generator":22,"./source-map/source-node":23}],17:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -2051,7 +2082,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./util":23,"amdefine":24}],17:[function(require,module,exports){
+},{"./util":24,"amdefine":25}],18:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -2197,7 +2228,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./base64":18,"amdefine":24}],18:[function(require,module,exports){
+},{"./base64":19,"amdefine":25}],19:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -2241,7 +2272,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":24}],19:[function(require,module,exports){
+},{"amdefine":25}],20:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -2324,7 +2355,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":24}],20:[function(require,module,exports){
+},{"amdefine":25}],21:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -2804,7 +2835,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./array-set":16,"./base64-vlq":17,"./binary-search":19,"./util":23,"amdefine":24}],21:[function(require,module,exports){
+},{"./array-set":17,"./base64-vlq":18,"./binary-search":20,"./util":24,"amdefine":25}],22:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -3206,7 +3237,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./array-set":16,"./base64-vlq":17,"./util":23,"amdefine":24}],22:[function(require,module,exports){
+},{"./array-set":17,"./base64-vlq":18,"./util":24,"amdefine":25}],23:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -3608,7 +3639,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./source-map-generator":21,"./util":23,"amdefine":24}],23:[function(require,module,exports){
+},{"./source-map-generator":22,"./util":24,"amdefine":25}],24:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -3912,7 +3943,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":24}],24:[function(require,module,exports){
+},{"amdefine":25}],25:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
  * @license amdefine 0.1.0 Copyright (c) 2011, The Dojo Foundation All Rights Reserved.
@@ -4215,7 +4246,7 @@ function amdefine(module, requireFn) {
 module.exports = amdefine;
 
 }).call(this,require("FWaASH"),"/node_modules/source-map/node_modules/amdefine/amdefine.js")
-},{"FWaASH":11,"path":10}],25:[function(require,module,exports){
+},{"FWaASH":11,"path":10}],26:[function(require,module,exports){
 // Copyright 2014 Simon Lydell
 // X11 (“MIT”) Licensed. (See LICENSE.)
 
